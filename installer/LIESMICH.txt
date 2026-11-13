@@ -1,0 +1,25 @@
+CLIPWERK STUDIO 1.0 - kostenloser Video-Editor mit KI
+
+START
+  Desktop-Symbol 'Clipwerk Studio' doppelklicken. Es oeffnet sich ein eigenes App-Fenster.
+  Ohne Setup: Clipwerk-Studio.html in Chrome oder Edge oeffnen.
+
+WAS LAEUFT WO
+  Schnitt, Vorschau, Musik-Generator, Soundeffekte, Greenscreen: komplett auf dem PC, auch offline.
+  KI-Bilder, KI-Texte, Online-Stimme: kostenlos ueber Pollinations.ai (Internet noetig).
+  Untertitel, Hintergrund entfernen, Rauschen entfernen, Offline-Stimme: laufen lokal,
+  laden aber beim ersten Benutzen einmalig ein Modell herunter.
+
+SPEICHERN
+  Das aktuelle Projekt wird automatisch gespeichert.
+  'Speichern' erzeugt zusaetzlich eine .clipwerk-Datei mit allen Medien als Sicherung.
+
+OPTIONALE SCHLUESSEL (Optionen-Knopf unten links)
+  Pollinations: enter.pollinations.ai (kostenlos) - falls KI-Limits greifen.
+  Pexels: pexels.com/api (kostenlos) - fuer Stock-Videos.
+
+TASTENKUERZEL
+  Leertaste Abspielen | S Teilen | Entf Loeschen | Strg+Z Rueckgaengig | Strg+E Export
+
+DEINSTALLIEREN
+  Windows-Einstellungen > Apps > Clipwerk Studio > Deinstallieren.

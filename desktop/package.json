@@ -1,0 +1,8 @@
+{
+  "name": "clipwerk-studio",
+  "productName": "Clipwerk Studio",
+  "version": "1.2.0",
+  "description": "Kostenloser Video-Editor mit KI",
+  "main": "main.js",
+  "author": "Clipwerk"
+}

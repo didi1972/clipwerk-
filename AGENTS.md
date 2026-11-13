@@ -1,0 +1,55 @@
+# Clipwerk Studio – Übergabe für Entwickler / KI-Agenten
+
+Kostenloser Video-Editor für TikTok, Reels, Shorts und YouTube (Windows), ähnlich CapCut.
+Zielgruppe: Laien. **Oberstes Ziel: so einfach wie möglich („ein Klick“).** Oberfläche komplett auf Deutsch.
+
+## Aufbau
+
+| Pfad | Inhalt |
+|---|---|
+| `src/index.html` | HTML-Gerüst (Platzhalter `/*CSS*/`, `/*MEDIABUNNY*/`, `/*JS*/`) |
+| `src/style.css` | Alle Styles (dunkles Design, Akzent Bernstein `#ffb547`) |
+| `src/js/01-core.js` | Hilfsfunktionen, Datenmodell (`State`), Clips, Keyframes, Rückgängig (`commit/undo`), IndexedDB-Autosave (`Store`), Medienimport (`addMediaBlob`) |
+| `src/js/02-render.js` | Render-Engine (`Renderer`): Clips, Übergänge, Filter, Text-Animationen, Effekte, Hintergrundentfernung (`BgRemoval`, MediaPipe + Chroma-Key) |
+| `src/js/03-preview.js` | Vorschau, Wiedergabe, Maus-Bearbeitung im Bild |
+| `src/js/04-timeline.js` | Mehrspur-Timeline, Trimmen, Teilen, Kontextmenüs |
+| `src/js/05-inspector.js` | Rechte Eigenschaftenleiste (Profi-Modus) |
+| `src/js/06-audio.js` | Musik-Generator (8 Stile, WebAudio offline), Soundeffekte, Mikrofonaufnahme, Rauschunterdrückung (RNNoise) |
+| `src/js/07-ai.js` | KI über Pollinations.ai (Bild, Text, Stimme, Transkription), lokale Whisper/Piper, Stock-Medien (Openverse, Wikimedia, Pexels), Untertitel |
+| `src/js/08-export.js` | MP4/WebM-Export mit Mediabunny + WebCodecs, Audio-Mix, Projektdatei `.clipwerk` |
+| `src/js/09-panels.js` | Linke Werkzeug-Tabs (Profi-Modus) |
+| `src/js/10-templates.js` | Vorlagen + „KI-Video aus Idee“ (`Templates.buildStory`) |
+| `src/js/11-main.js` | Start (`boot`), Tastenkürzel, Drag & Drop, Optionen, Beispielprojekt |
+| `src/js/12-easy.js` | **Einfach-Modus**: Startbildschirm, Auto-Schnitt im Takt (`Easy.build`), Stimmungen (`VIBES`), Ein-Klick-Export |
+| `src/js/13-stockpicker.js` | Dialog „Kostenlose Videos & Fotos aus dem Internet“ |
+| `desktop/` | Electron-Hülle: `main.js` (Fenster, Internetzugriff ohne CORS via `net:fetch`, Speichern nach `Videos\Clipwerk`), `preload.js` (`window.native`) |
+| `installer/` | NSIS-Skripte: `web.nsi` (kleines Setup, lädt Electron bei Installation), `desktop.nsi` (Vollsetup ~105 MB), `clipwerk.nsi` (alt: HTML im Edge-App-Modus) |
+| `vendor/mediabunny.min.cjs` | Mediabunny 1.62.1 (MPL-2.0), wird in die HTML eingebettet |
+| `tools/` | `build-windows.sh` (kompletter Build), `seticon.mjs` (Symbol in die .exe) |
+
+Alle JS-Dateien sind klassische Skripte im globalen Scope und werden in Dateinamen-Reihenfolge zusammengefügt.
+
+## Bauen
+
+```bash
+python3 build.py vendor/mediabunny.min.cjs   # -> dist/Clipwerk-Studio.html (läuft direkt in Chrome/Edge)
+./tools/build-windows.sh                      # -> dist/Clipwerk-Setup.exe + dist/Clipwerk-Studio-Setup-Windows.exe
+```
+Benötigt unter Linux: python3, node/npm, unzip, curl, `makensis` (apt: nsis). Electron-Version per `ELECTRON_VERSION` (Standard 45.0.0).
+`Clipwerk-Setup.exe` im Repo-Hauptordner ist die Datei hinter dem Download-Link in der README – nach einem neuen Build dorthin kopieren.
+
+## Stand
+
+Getestet (headless Chromium + Electron unter Linux): Start, Beispielprojekt, Timeline-Bedienung, alle Effekte/Übergänge/Text-Animationen, Greenscreen, Musik-Generator, Einfach-Modus (Clips → Stimmung → Video erstellen → Neu mischen → Speichern), MP4-Export (H.264), automatisches Speichern nach `Videos\Clipwerk`.
+
+**Nicht getestet:**
+- Setup und Programm auf echtem Windows.
+- Alle Online-Dienste (Pollinations-KI, Openverse, Wikimedia, Pexels): die Testumgebung hatte kein freies Internet. Pollinations verlangt laut aktueller Doku evtl. einen kostenlosen Schlüssel (enter.pollinations.ai); die App zeigt dann `KeyWizard`.
+- Lokale KI-Modelle, die zur Laufzeit von CDNs geladen werden: MediaPipe (Freistellen), RNNoise, Whisper (transformers.js 4.3.0), Piper (vits-web über esm.sh).
+
+## Offene Punkte / Ideen
+
+- Nutzer findet die App noch zu kompliziert → Einfach-Modus weiter vereinfachen (z. B. Profi-Editor ganz ausblenden, weniger Optionen, größere Knöpfe).
+- Setup ist nicht signiert → Windows-SmartScreen-Warnung beim ersten Start.
+- `web.nsi` nutzt PowerShell `Invoke-WebRequest` + `Expand-Archive` zum Nachladen von Electron.
+- Im Electron-Export kann der Ton Opus statt AAC sein, falls AAC-Encoding fehlt.

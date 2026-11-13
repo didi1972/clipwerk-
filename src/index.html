@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clipwerk Studio</title>
+<meta name="description" content="Kostenloser Video-Editor mit KI für TikTok, Reels, Shorts und YouTube.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ffb547'/%3E%3Cpath d='M9 11h14v12H9z' fill='%231c1306'/%3E%3Cpath d='M8 7l16-2 .6 4-16 2z' fill='%231c1306'/%3E%3Cpath d='M14 14v6l5-3z' fill='%23ffb547'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800;1,900&family=Poppins:wght@400;600;700;800;900&family=Anton&family=Bebas+Neue&family=Oswald:wght@500;700&family=Archivo+Black&family=Bangers&family=Bungee&family=Permanent+Marker&family=Caveat:wght@700&family=Pacifico&family=Lobster&family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;1,700&family=Special+Elite&family=Press+Start+2P&display=swap">
+<style>/*CSS*/</style>
+</head>
+<body>
+<div id="boot">Clipwerk Studio wird gestartet …</div>
+<div id="app">
+  <header class="top">
+    <button id="btnPanel" class="ib only-narrow" title="Werkzeuge"></button>
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#ffb547"/><path d="M9 11h14v12H9z" fill="#1c1306"/><path d="M8 7l16-2 .6 4-16 2z" fill="#1c1306"/><path d="M14 14v6l5-3z" fill="#ffb547"/></svg>
+      <span class="brand-name">Clipwerk</span><span class="brand-sub">Studio</span>
+    </div>
+    <input id="projName" class="proj-name" aria-label="Projektname" value="Mein Video">
+    <span id="saveState" class="save-state">Automatisch gespeichert</span>
+    <div class="top-mid">
+      <button id="btnUndo" class="ib" title="Rückgängig (Strg+Z)"></button>
+      <button id="btnRedo" class="ib" title="Wiederholen (Strg+Y)"></button>
+      <select id="selFormat" class="sel fmt" aria-label="Videoformat"></select>
+    </div>
+    <div class="top-right">
+      <button id="btnHome" class="btn ghost sm" title="Startbildschirm"></button>
+      <button id="btnMode" class="btn ghost sm" title="Zwischen einfacher Ansicht und Profi-Editor wechseln"></button>
+      <button id="btnNew" class="btn ghost sm" title="Neues Projekt">Neu</button>
+      <button id="btnOpen" class="btn ghost sm" title="Projektdatei öffnen">Öffnen</button>
+      <button id="btnSave" class="btn ghost sm" title="Projekt als Datei sichern (Strg+S)">Speichern</button>
+      <button id="btnInsp" class="ib only-narrow" title="Eigenschaften"></button>
+      <button id="btnExport" class="btn primary" title="Video exportieren (Strg+E)">Exportieren</button>
+    </div>
+  </header>
+  <nav id="rail" class="rail" aria-label="Werkzeuge"></nav>
+  <aside id="panel" class="panel"></aside>
+  <main class="stage">
+    <div id="viewer" class="viewer"><div id="canvasWrap" class="canvas-wrap"><canvas id="cv"></canvas><canvas id="ov"></canvas></div></div>
+    <div class="transport">
+      <div class="tp-left"><span id="tcNow" class="mono tc">00:00:00</span><span class="tc-sep">/</span><span id="tcDur" class="mono tc dim">00:00:00</span></div>
+      <div class="tp-mid">
+        <button id="btnStart" class="ib" title="Zum Anfang (Pos1)"></button>
+        <button id="btnBack" class="ib" title="Ein Bild zurück (←)"></button>
+        <button id="btnPlay" class="ib play" title="Abspielen (Leertaste)"></button>
+        <button id="btnFwd" class="ib" title="Ein Bild vor (→)"></button>
+        <button id="btnEnd" class="ib" title="Zum Ende (Ende)"></button>
+      </div>
+      <div class="tp-right">
+        <button id="btnLoop" class="ib" title="Endlos abspielen"></button>
+        <button id="btnSafe" class="ib" title="Sicherheitszone für TikTok/Reels zeigen"></button>
+        <button id="btnSnap" class="ib" title="Standbild als PNG speichern (Thumbnail)"></button>
+        <button id="btnFull" class="ib" title="Vollbild"></button>
+      </div>
+    </div>
+    <div id="easyBar" class="easy-bar"></div>
+  </main>
+  <aside id="insp" class="insp" aria-label="Eigenschaften"></aside>
+  <div id="hsplit" class="hsplit" title="Ziehen, um die Timeline größer oder kleiner zu machen"></div>
+  <section id="tl" class="tl" aria-label="Timeline">
+    <div class="tl-bar">
+      <button id="tlSplit" class="btn ghost sm" title="Am Abspielkopf teilen (S)">Teilen</button>
+      <button id="tlDelete" class="btn ghost sm" title="Clip löschen (Entf)">Löschen</button>
+      <button id="tlDup" class="btn ghost sm" title="Duplizieren (Strg+D)">Duplizieren</button>
+      <span class="sep"></span>
+      <button id="tlSnap" class="btn ghost sm on" title="Einrasten an Clipkanten und Abspielkopf">Einrasten</button>
+      <button id="tlAddTrack" class="btn ghost sm" title="Neue Spur">Spur</button>
+      <span class="grow"></span>
+      <button id="tlZoomOut" class="ib sm" title="Timeline verkleinern (−)"></button>
+      <input id="tlZoom" type="range" min="8" max="600" value="70" aria-label="Timeline-Zoom">
+      <button id="tlZoomIn" class="ib sm" title="Timeline vergrößern (+)"></button>
+      <button id="tlFit" class="btn ghost sm" title="Ganzes Projekt zeigen">Einpassen</button>
+    </div>
+    <div id="tlScroll" class="tl-scroll"><div id="tlInner" class="tl-inner"></div></div>
+  </section>
+</div>
+<div class="drop-overlay"><div>Dateien loslassen zum Importieren</div></div>
+<div id="modalRoot"></div>
+<div id="toasts" aria-live="polite"></div>
+<input type="file" id="fileInput" multiple accept="video/*,image/*,audio/*" hidden>
+<input type="file" id="projInput" accept=".clipwerk" hidden>
+<svg id="cwFilters" width="0" height="0" style="position:absolute" aria-hidden="true"></svg>
+<script>/*MEDIABUNNY*/</script>
+<script>/*JS*/</script>
+</body>
+</html>

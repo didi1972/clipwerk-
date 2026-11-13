@@ -17,3 +17,7 @@ Kostenloser Video-Editor für TikTok, Reels, Shorts und YouTube – mit Ein-Klic
 2. Fotos und Videos ins große Feld ziehen (oder „Aus dem Internet“ für kostenlose Clips).
 3. Stimmung wählen (Hype, Fröhlich, Chill, Kino, Retro, Gefühlvoll), TikTok und Länge.
 4. **Video erstellen** – dann **Als Video speichern**. Das Video liegt in **Videos → Clipwerk**.
+
+## Für Entwickler
+
+Quellcode in `src/`, Desktop-Hülle in `desktop/`, Setups in `installer/`. Aufbau, Build-Anleitung und Stand stehen in [AGENTS.md](AGENTS.md).
