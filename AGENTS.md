@@ -22,10 +22,11 @@ Zielgruppe: Laien. **Oberstes Ziel: so einfach wie möglich („ein Klick“).**
 | `src/js/11-main.js` | Start (`boot`), Tastenkürzel, Drag & Drop, Optionen, Beispielprojekt |
 | `src/js/12-easy.js` | **Einfach-Modus**: Startbildschirm, Auto-Schnitt im Takt (`Easy.build`), Stimmungen (`VIBES`), Ein-Klick-Export |
 | `src/js/13-stockpicker.js` | Dialog „Kostenlose Videos & Fotos aus dem Internet“ |
-| `desktop/` | Electron-Hülle: `main.js` (Fenster, Internetzugriff ohne CORS via `net:fetch`, Speichern nach `Videos\Clipwerk`), `preload.js` (`window.native`) |
+| `desktop/` | Electron-Hülle: `main.js` (eigenes Protokoll `app://clipwerk`, Content-Security-Policy, Berechtigungen, Datenzugriff ohne CORS via `net:fetch`, Speichern nach `Videos\Clipwerk`), `preload.js` (`window.native`) |
+| `tools/libs/` | Lokale KI-Bibliotheken (fest versioniert in `package-lock.json`): `build.mjs` bündelt MediaPipe + Modell, RNNoise, transformers.js (nur WASM), Piper nach `resources/app/lib` |
 | `installer/` | NSIS-Skripte: `web.nsi` (kleines Setup, lädt Electron bei Installation), `desktop.nsi` (Vollsetup ~105 MB), `clipwerk.nsi` (alt: HTML im Edge-App-Modus) |
 | `vendor/mediabunny.min.cjs` | Mediabunny 1.62.1 (MPL-2.0), wird in die HTML eingebettet |
-| `tools/` | `build-windows.sh` (kompletter Build), `seticon.mjs` (Symbol in die .exe) |
+| `tools/` | `build-windows.sh` (kompletter Build inkl. Prüfsummen-Abgleich), `seticon.mjs` (Symbol in die .exe) |
 
 Alle JS-Dateien sind klassische Skripte im globalen Scope und werden in Dateinamen-Reihenfolge zusammengefügt.
 
@@ -38,18 +39,27 @@ python3 build.py vendor/mediabunny.min.cjs   # -> dist/Clipwerk-Studio.html (lä
 Benötigt unter Linux: python3, node/npm, unzip, curl, `makensis` (apt: nsis). Electron-Version per `ELECTRON_VERSION` (Standard 45.0.0).
 `Clipwerk-Setup.exe` im Repo-Hauptordner ist die Datei hinter dem Download-Link in der README – nach einem neuen Build dorthin kopieren.
 
+## Sicherheit (Desktop)
+
+- Die App läuft unter `app://clipwerk/` (eigenes, als „secure“ registriertes Protokoll; kein Ausbruch aus dem App-Ordner möglich).
+- CSP: Skripte/Worker nur `'self'`, `blob:` und Inline (alles JS ist eingebettet); Daten (Bilder, Medien, Modelle, APIs) per https erlaubt.
+- KI-**Code** (JS/WASM) ist komplett lokal (`LOCAL_LIBS` in `01-core.js`). Nur **Modelldaten** für Whisper/Piper kommen beim ersten Benutzen von huggingface.co.
+- IPC-Handler prüfen den Absender (Protokoll + Host, nicht `origin` – Node liefert für eigene Protokolle `"null"`), erlauben nur https, begrenzen Downloads auf 500 MB und Dateitypen beim Speichern.
+- Berechtigungen: nur Mikrofon (nur Audio), Vollbild, Zwischenablage-Schreiben – und nur für die eigene App.
+- Das kleine Setup (`web.nsi`) lädt Electron von GitHub und prüft die SHA-256-Prüfsumme; `build-windows.sh` gleicht diese vorher mit der offiziellen `SHASUMS256.txt` ab.
+
 ## Stand
 
-Getestet (headless Chromium + Electron unter Linux): Start, Beispielprojekt, Timeline-Bedienung, alle Effekte/Übergänge/Text-Animationen, Greenscreen, Musik-Generator, Einfach-Modus (Clips → Stimmung → Video erstellen → Neu mischen → Speichern), MP4-Export (H.264), automatisches Speichern nach `Videos\Clipwerk`.
+Getestet (headless Chromium + Electron 45 unter Linux): `app://`-Protokoll + CSP (fremdes Skript wird blockiert), lokale KI-Bausteine (MediaPipe-Freistellung, RNNoise, transformers.js- und Piper-Module laden), Ein-Klick-Ablauf (Dateien wählen → Video entsteht sofort → Format wechseln → speichern), Start, Beispielprojekt, Timeline-Bedienung, alle Effekte/Übergänge/Text-Animationen, Greenscreen, Musik-Generator, Einfach-Modus (Clips → Stimmung → Video erstellen → Neu mischen → Speichern), MP4-Export (H.264), automatisches Speichern nach `Videos\Clipwerk`.
 
 **Nicht getestet:**
 - Setup und Programm auf echtem Windows.
 - Alle Online-Dienste (Pollinations-KI, Openverse, Wikimedia, Pexels): die Testumgebung hatte kein freies Internet. Pollinations verlangt laut aktueller Doku evtl. einen kostenlosen Schlüssel (enter.pollinations.ai); die App zeigt dann `KeyWizard`.
-- Lokale KI-Modelle, die zur Laufzeit von CDNs geladen werden: MediaPipe (Freistellen), RNNoise, Whisper (transformers.js 4.3.0), Piper (vits-web über esm.sh).
+- Whisper- und Piper-**Modelle** (Download von huggingface.co war in der Testumgebung gesperrt) – die Bibliotheken selbst laden.
 
 ## Offene Punkte / Ideen
 
-- Nutzer findet die App noch zu kompliziert → Einfach-Modus weiter vereinfachen (z. B. Profi-Editor ganz ausblenden, weniger Optionen, größere Knöpfe).
+- Einfach-Modus (seit 1.3): Start = nur Ablagefläche; Dateien rein → Video entsteht sofort; Stimmung/Format/Länge per Klick; Profi-Editor nur als kleiner Link. Weiteres Feedback des Nutzers abwarten.
 - Setup ist nicht signiert → Windows-SmartScreen-Warnung beim ersten Start.
-- `web.nsi` nutzt PowerShell `Invoke-WebRequest` + `Expand-Archive` zum Nachladen von Electron.
+- `web.nsi` nutzt PowerShell `Invoke-WebRequest` + `Get-FileHash` + `Expand-Archive` zum Nachladen von Electron.
 - Im Electron-Export kann der Ton Opus statt AAC sein, falls AAC-Encoding fehlt.

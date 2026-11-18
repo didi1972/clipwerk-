@@ -1,4 +1,5 @@
 build/
 dist/
 tools/node_modules/
+tools/libs/node_modules/
 *.log

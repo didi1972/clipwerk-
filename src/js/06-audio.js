@@ -295,7 +295,7 @@ const Denoise = {
   rn: null,
   async load() {
     if (this.rn) return this.rn;
-    const mod = await import('https://cdn.jsdelivr.net/npm/@shiguredo/rnnoise-wasm@2025.1.5/dist/rnnoise.js');
+    const mod = await import(LOCAL_LIBS ? '/lib/rnnoise/rnnoise.js' : 'https://cdn.jsdelivr.net/npm/@shiguredo/rnnoise-wasm@2025.1.5/dist/rnnoise.js');
     this.rn = await mod.Rnnoise.load(); return this.rn;
   },
   async process(buf, enhance = true) {

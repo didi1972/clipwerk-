@@ -1,7 +1,7 @@
 Unicode true
 !include "MUI2.nsh"
 !define APPNAME "Clipwerk Studio"
-!define VERSION "1.2.0"
+!define VERSION "1.3.0"
 !define UNINSTKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\ClipwerkStudio"
 Name "${APPNAME}"
 OutFile "../dist/Clipwerk-Studio-Setup-Windows.exe"
@@ -10,7 +10,7 @@ RequestExecutionLevel user
 SetCompressor /SOLID lzma
 SetCompressorDictSize 64
 BrandingText "Clipwerk Studio ${VERSION}"
-VIProductVersion "1.2.0.0"
+VIProductVersion "1.3.0.0"
 VIAddVersionKey /LANG=1031 "ProductName" "${APPNAME}"
 VIAddVersionKey /LANG=1031 "FileDescription" "${APPNAME} Setup"
 VIAddVersionKey /LANG=1031 "FileVersion" "${VERSION}"

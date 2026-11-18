@@ -43,7 +43,7 @@ function bindUI() {
   $('#btnOpen').onclick = () => $('#projInput').click();
   $('#btnSave').onclick = () => ProjectFile.save();
   $('#btnExport').onclick = () => document.body.classList.contains('simple') ? Exporter.quick() : Exporter.open();
-  $('#btnHome').innerHTML = icon('layout') + '<span>Start</span>'; $('#btnHome').onclick = () => Easy.home();
+  $('#btnHome').innerHTML = icon('plus') + '<span>Neues Video</span>'; $('#btnHome').onclick = () => { Easy.st.media = []; Easy.home(); };
   $('#btnMode').onclick = () => Easy.setSimple(!document.body.classList.contains('simple'));
   $('#projInput').onchange = (e) => { const f = e.target.files[0]; if (f) ProjectFile.load(f); e.target.value = ''; };
   $('#fileInput').onchange = (e) => { importFiles([...e.target.files], { toTimeline: !State.clips.length }); e.target.value = ''; };
@@ -190,7 +190,7 @@ async function boot() {
   if (!restored) Store.saveState();
   Store.cleanupMedia();
   $('#boot')?.remove();
-  Easy.setSimple(false);
+  Easy.setSimple(true);
   Easy.home();
 }
 window.addEventListener('error', e => { console.error(e.error || e.message); });

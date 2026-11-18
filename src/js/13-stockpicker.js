@@ -1,6 +1,6 @@
 /* Kostenlose Videos & Fotos aus dem Internet suchen (Wikimedia, Openverse, Pexels) */
 const StockPicker = {
-  open(onAdd) {
+  open(onAdd, onDone) {
     const q = el('input', { class: 'inp big', placeholder: 'Was suchst du? z. B. Strand, Feuerwerk, Hund, Stadt …' });
     const src = el('select', { class: 'sel' }, el('option', { value: 'video' }, 'Videos (Wikimedia)'), el('option', { value: 'image' }, 'Fotos (Wikimedia)'), el('option', { value: 'ov' }, 'Fotos (Openverse)'));
     const grid = el('div', { class: 'sgrid big' });
@@ -20,7 +20,7 @@ const StockPicker = {
     };
     q.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
     modal({ title: 'Kostenlose Videos & Fotos holen', wide: true, body: el('div', { class: 'tform' }, el('p', { class: 'muted small' }, 'Alles frei nutzbar (Creative Commons). Klick auf ein Bild oder Video, um es zu übernehmen. Die Quellenangabe merkt sich Clipwerk automatisch.'), el('div', { class: 'row-inline' }, q, src, el('button', { class: 'btn primary', html: icon('search') + 'Suchen', onclick: go })), grid),
-      actions: [{ label: 'Fertig', kind: 'primary' }] });
+      actions: [{ label: 'Fertig', kind: 'primary' }], onClose: () => onDone && onDone() });
     setTimeout(() => q.focus());
   },
 };

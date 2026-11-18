@@ -2,7 +2,9 @@
 /* ==========================================================================
    Clipwerk Studio – Kern: Hilfsfunktionen, Datenmodell, Verlauf, Speicher
    ========================================================================== */
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.3.0';
+/* Desktop-Version: KI-Bibliotheken liegen lokal im Programm (kein Code aus dem Netz). Browser-Version: offizielle CDNs. */
+const LOCAL_LIBS = !!(window.native && window.native.desktop && location.protocol === 'app:');
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const uid = (p = 'c') => p + '_' + Math.random().toString(36).slice(2, 10);

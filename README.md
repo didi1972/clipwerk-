@@ -8,15 +8,15 @@ Kostenloser Video-Editor für TikTok, Reels, Shorts und YouTube – mit Ein-Klic
 
 1. Auf den Link oben klicken – die Datei landet im Ordner **Downloads**.
 2. Doppelklicken. Bei „Der Computer wurde durch Windows geschützt“: **Weitere Informationen → Trotzdem ausführen**.
-3. **Weiter** klicken. Das Setup lädt ca. 150 MB Programmteile aus dem Internet (1–5 Minuten).
+3. **Weiter** klicken. Das Setup lädt ca. 150 MB Programmteile aus dem Internet (1–5 Minuten) und prüft sie automatisch auf Echtheit.
 4. Fertig – **Clipwerk Studio** liegt auf dem Desktop.
 
 ## So machst du einen TikTok-Clip
 
 1. Clipwerk starten.
-2. Fotos und Videos ins große Feld ziehen (oder „Aus dem Internet“ für kostenlose Clips).
-3. Stimmung wählen (Hype, Fröhlich, Chill, Kino, Retro, Gefühlvoll), TikTok und Länge.
-4. **Video erstellen** – dann **Als Video speichern**. Das Video liegt in **Videos → Clipwerk**.
+2. Fotos und Videos ins große Feld ziehen – **das Video entsteht sofort automatisch**.
+3. Optional: andere Stimmung, Format oder Länge anklicken, oder **Neu mischen**.
+4. **Video speichern** – das Video liegt in **Videos → Clipwerk**.
 
 ## Für Entwickler
 

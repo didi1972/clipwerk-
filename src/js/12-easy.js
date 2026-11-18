@@ -21,67 +21,40 @@ const Easy = {
     const hasProject = State.clips.length > 0 && State.project.name !== 'Beispielprojekt';
     const file = el('input', { type: 'file', multiple: true, accept: 'video/*,image/*', hidden: true });
     file.onchange = () => { this.addFiles([...file.files]); file.value = ''; };
-    const drop = el('button', { class: 'home-drop', onclick: () => file.click(), html: `<span class="hd-ic">${icon('upload')}</span><strong>Fotos & Videos hier reinziehen</strong><span>oder klicken zum Auswählen</span>` });
+    const drop = el('button', { class: 'home-drop big', onclick: () => file.click(), html: `<span class="hd-ic">${icon('upload')}</span><strong>Fotos und Videos hier reinziehen</strong><span>oder klicken zum Auswählen – das Video entsteht automatisch</span>` });
     drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
     drop.addEventListener('dragleave', () => drop.classList.remove('over'));
     drop.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove('over'); document.body.classList.remove('dropping'); this.addFiles([...e.dataTransfer.files]); });
-    const idea = el('input', { class: 'inp big', placeholder: 'z. B. „5 verrückte Fakten über Katzen“' });
-    const ideaGo = el('button', { class: 'btn primary big', html: icon('sparkle') + 'Zaubern', onclick: () => this.fromIdea(idea.value) });
+    const idea = el('input', { class: 'inp big', placeholder: 'Thema, z. B. „5 verrückte Fakten über Katzen“' });
+    const ideaGo = el('button', { class: 'btn primary', html: icon('sparkle') + 'Video erstellen', onclick: () => this.fromIdea(idea.value) });
     idea.addEventListener('keydown', e => { if (e.key === 'Enter') ideaGo.click(); });
-    const box = el('div', { class: 'home' },
+    const ideaBox = el('details', { class: 'home-idea' }, el('summary', { html: `${icon('sparkle')}<span>Keine eigenen Clips? <strong>Video aus einer Idee erstellen (KI)</strong></span>` }), el('div', { class: 'row-inline' }, idea, ideaGo));
+    const net = el('button', { class: 'btn ghost', html: icon('search') + 'Kostenlose Clips aus dem Internet holen', onclick: () => { const picked = []; StockPicker.open(m => picked.push(m.id), () => { if (picked.length) { this.st.media = picked; this.build(); } }); } });
+    const box = el('div', { class: 'home simple-home' },
       el('div', { class: 'home-brand', html: `<svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#ffb547"/><path d="M9 11h14v12H9z" fill="#1c1306"/><path d="M8 7l16-2 .6 4-16 2z" fill="#1c1306"/><path d="M14 14v6l5-3z" fill="#ffb547"/></svg><span>Clipwerk</span>` }),
-      el('h1', {}, 'Was willst du heute erstellen?'),
-      el('div', { class: 'home-grid' },
-        el('section', { class: 'home-card main' }, el('div', { class: 'hc-tag' }, '1 Klick'), el('h2', {}, 'Video aus meinen Clips'), el('p', {}, 'Clipwerk sucht die besten Stellen, schneidet im Takt der Musik und setzt Übergänge und Effekte – automatisch.'), drop, file),
-        el('section', { class: 'home-card ai' }, el('div', { class: 'hc-tag ai' }, 'KI · kostenlos'), el('h2', {}, 'Video aus einer Idee'), el('p', {}, 'Schreib ein Thema. Die KI erstellt Text, Bilder, Sprecher, Untertitel und Musik.'), idea, ideaGo)),
-      el('div', { class: 'home-more' },
-        hasProject ? el('button', { class: 'btn ghost', html: icon('film') + `„${State.project.name}“ weiter bearbeiten`, onclick: () => { this.close(); this.setSimple(false); } }) : null,
-        el('button', { class: 'btn ghost', html: icon('layout') + 'Vorlagen', onclick: () => { this.close(); this.setSimple(false); Panels.show('templates'); } }),
-        el('button', { class: 'btn ghost', html: icon('sliders') + 'Profi-Editor', onclick: () => { this.close(); this.setSimple(false); } }),
-        el('button', { class: 'btn ghost', html: icon('folder') + 'Projektdatei öffnen', onclick: () => { this.close(); $('#projInput').click(); } })));
+      el('h1', {}, 'Dein Video in einem Klick'),
+      drop, file,
+      el('div', { class: 'home-row' }, net, hasProject ? el('button', { class: 'btn ghost', html: icon('film') + 'Letztes Video weiter bearbeiten', onclick: () => { this.close(); this.setSimple(true); } }) : null),
+      ideaBox,
+      el('div', { class: 'home-foot' },
+        el('button', { class: 'linkbtn', onclick: () => { this.close(); $('#projInput').click(); } }, 'Projektdatei öffnen'),
+        el('span', {}, '·'),
+        el('button', { class: 'linkbtn', onclick: () => { this.close(); this.setSimple(false); } }, 'Profi-Editor (für Fortgeschrittene)')));
     this.ov = el('div', { class: 'home-wrap' }, box);
     document.body.append(this.ov);
   },
   close() { if (this.ov) { this.ov.remove(); this.ov = null; } },
-  async addFiles(files) {
-    const ok = files.filter(f => /^(video|image)\//.test(f.type) || guessType(f, f.name) === 'video' || guessType(f, f.name) === 'image');
+  async addFiles(files, append = false) {
+    const ok = files.filter(f => guessType(f, f.name) === 'video' || guessType(f, f.name) === 'image');
     if (!ok.length) { toast('Bitte Fotos oder Videos auswählen.', 'warn'); return; }
     const busy = Busy.show('Dateien werden geladen …');
     const ids = [];
     for (const [i, f] of ok.entries()) { busy.set(i / ok.length, f.name); try { ids.push((await addMediaBlob(f, f.name)).id); } catch (e) { toast(e.message, 'error'); } }
     busy.close();
     if (!ids.length) return;
-    this.st.media = [...this.st.media.filter(id => State.media.has(id)), ...ids];
-    this.setup();
-  },
-  /* ---------- Schritt 2: Stil wählen ---------- */
-  setup() {
-    this.close();
-    const E = this.st;
-    const thumbs = el('div', { class: 'es-thumbs' });
-    const drawThumbs = () => thumbs.replaceChildren(...E.media.map(id => State.media.get(id)).filter(Boolean).map(m => el('div', { class: 'es-th', style: { backgroundImage: `url(${m.thumb})` } }, m.type === 'video' ? el('span', { class: 'mdur mono' }, fmtSec(m.duration)) : null,
-      el('button', { class: 'es-x', title: 'Entfernen', html: icon('close'), onclick: () => { E.media = E.media.filter(x => x !== m.id); drawThumbs(); } }))),
-      el('button', { class: 'es-th add', html: icon('plus') + '<span>Mehr</span>', onclick: () => more.click() }),
-      el('button', { class: 'es-th add net', html: icon('search') + '<span>Aus dem Internet</span>', onclick: () => StockPicker.open(m => { E.media.push(m.id); drawThumbs(); }) }));
-    const more = el('input', { type: 'file', multiple: true, accept: 'video/*,image/*', hidden: true });
-    more.onchange = () => { this.addFiles([...more.files]); };
-    drawThumbs();
-    const pick = (opts, key, render) => el('div', { class: 'es-pick' }, Object.entries(opts).map(([k, v]) => { const b = el('button', { class: 'es-opt' + (String(E[key]) === String(k) ? ' on' : ''), html: render(k, v) }); b.onclick = () => { E[key] = isNaN(+k) || key === 'format' ? k : +k; $$('.es-opt', b.parentNode).forEach(x => x.classList.remove('on')); b.classList.add('on'); }; return b; }));
-    const title = el('input', { class: 'inp big', placeholder: 'Titel im Video (optional), z. B. „Mein Sommer 2026“', value: E.title }); title.oninput = () => E.title = title.value;
-    const keep = el('button', { class: 'tgl' + (E.keepAudio ? ' on' : ''), role: 'switch' }, el('span')); keep.onclick = () => { E.keepAudio = !E.keepAudio; keep.classList.toggle('on', E.keepAudio); };
-    const box = el('div', { class: 'home setup' },
-      el('button', { class: 'btn ghost sm back', html: icon('stepBack') + 'Zurück', onclick: () => this.home() }),
-      el('h1', {}, 'Wie soll dein Video wirken?'),
-      el('div', { class: 'es-sec' }, el('h3', { class: 'h3' }, `Deine Dateien (${E.media.length})`), thumbs, more),
-      el('div', { class: 'es-sec' }, el('h3', { class: 'h3' }, 'Stimmung'), pick(VIBES, 'vibe', (k, v) => `<span class="vb-dot" style="background:${v.color}"></span><strong>${v.label}</strong><span>${v.desc}</span>`)),
-      el('div', { class: 'es-row' },
-        el('div', { class: 'es-sec' }, el('h3', { class: 'h3' }, 'Wofür?'), pick(EASY_FORMATS, 'format', (k, v) => `<strong>${v[0]}</strong><span>${v[1]} · ${k}</span>`)),
-        el('div', { class: 'es-sec' }, el('h3', { class: 'h3' }, 'Länge'), pick({ 15: '15 s', 30: '30 s', 60: '60 s' }, 'len', (k, v) => `<strong>${v}</strong>`))),
-      el('div', { class: 'es-sec' }, el('h3', { class: 'h3' }, 'Titel'), title),
-      el('div', { class: 'row' }, el('label', { class: 'row-l' }, 'Originalton der Videos behalten'), el('div', { class: 'row-c' }, keep)),
-      el('button', { class: 'btn primary huge', html: icon('sparkle') + 'Video erstellen', onclick: () => { if (!E.media.length) { toast('Füge mindestens ein Foto oder Video hinzu.', 'warn'); return; } this.close(); this.build(); } }));
-    this.ov = el('div', { class: 'home-wrap' }, box);
-    document.body.append(this.ov);
+    this.st.media = append ? [...this.st.media.filter(id => State.media.has(id)), ...ids] : ids;
+    this.st.seed = 1;
+    this.build();
   },
   /* ---------- Beste Stellen in Videos finden ---------- */
   async analyze(m, onP) {
@@ -191,30 +164,33 @@ const Easy = {
   setSimple(on) {
     document.body.classList.toggle('simple', on);
     Settings.set('simple', on);
-    const b = $('#btnMode'); if (b) b.innerHTML = on ? icon('sliders') + '<span>Profi-Editor</span>' : icon('wand') + '<span>Einfach</span>';
+    const b = $('#btnMode'); if (b) b.innerHTML = icon('wand') + '<span>Zur einfachen Ansicht</span>';
     this.renderBar();
     requestAnimationFrame(() => { Preview.resize(); Timeline.render(); });
   },
   renderBar() {
     const bar = $('#easyBar'); if (!bar) return;
     const E = this.st;
-    const chips = (opts, key, lbl) => el('div', { class: 'chips' }, Object.entries(opts).map(([k, v]) => el('button', { class: 'chip' + (String(E[key]) === String(k) ? ' on' : ''), onclick: () => { E[key] = key === 'vibe' ? k : +k; this.build(); } }, key === 'vibe' ? el('span', { class: 'vb-dot', style: { background: v.color } }) : null, lbl(v))));
-    const title = el('input', { class: 'inp', placeholder: 'Titel im Video …', value: State.clips.find(c => c.kind === 'text' && c.start === 0)?.text || E.title });
+    const clipsMode = E.kind === 'clips' && E.media.length > 0;
+    const chips = (opts, key, lbl) => el('div', { class: 'chips big' }, Object.entries(opts).map(([k, v]) => el('button', { class: 'chip' + (String(E[key]) === String(k) ? ' on' : ''), onclick: () => { E[key] = (key === 'len') ? +k : k; this.build(); } }, key === 'vibe' ? el('span', { class: 'vb-dot', style: { background: v.color } }) : null, lbl(v, k))));
+    const titleClip = () => State.clips.find(c => c.kind === 'text' && c.start === 0 && c.track === trackByName('text', 'Text')?.id);
+    const title = el('input', { class: 'inp', placeholder: 'Titel im Video (optional) …', value: titleClip()?.text || E.title });
     title.onchange = () => {
-      E.title = title.value; const tc = State.clips.find(c => c.kind === 'text' && c.start === 0 && c.track === trackByName('text', 'Text')?.id);
-      if (tc) { if (title.value.trim()) tc.text = title.value; else State.clips = State.clips.filter(c => c !== tc); }
-      else if (title.value.trim()) Templates.text((VIBES[E.vibe] || VIBES.hype).text, title.value.trim(), 0, Math.min(2.6, projectDuration()), { y: .4 });
-      State.project.name = title.value.trim() || State.project.name; commit(); refreshAll();
+      E.title = title.value.trim(); const tc = titleClip();
+      if (tc) { if (E.title) tc.text = E.title; else State.clips = State.clips.filter(c => c !== tc); }
+      else if (E.title) { const V = VIBES[E.vibe] || VIBES.hype; Templates.text(V.text, E.title, 0, Math.min(2.6, projectDuration()), { y: .4, size: Math.max(TEXT_PRESETS[V.text].p.size, 120), boxW: .9 }); }
+      if (E.title) State.project.name = E.title; commit(); refreshAll();
     };
-    const clipsMode = E.kind === 'clips' && E.media.length;
+    const more = el('input', { type: 'file', multiple: true, accept: 'video/*,image/*', hidden: true });
+    more.onchange = () => { this.addFiles([...more.files], true); more.value = ''; };
     bar.replaceChildren(
       clipsMode ? el('div', { class: 'eb-row' }, el('span', { class: 'eb-l' }, 'Stimmung'), chips(VIBES, 'vibe', v => v.label)) : null,
-      clipsMode ? el('div', { class: 'eb-row' }, el('span', { class: 'eb-l' }, 'Länge'), chips({ 15: '15 s', 30: '30 s', 60: '60 s' }, 'len', v => v)) : null,
+      clipsMode ? el('div', { class: 'eb-row' }, el('span', { class: 'eb-l' }, 'Für'), chips(EASY_FORMATS, 'format', v => v[0]), el('span', { class: 'eb-l right' }, 'Länge'), chips({ 15: '15 s', 30: '30 s', 60: '60 s' }, 'len', v => v)) : null,
       el('div', { class: 'eb-row main' },
-        clipsMode ? el('button', { class: 'btn ghost', html: icon('dice') + 'Neu mischen', onclick: () => { E.seed++; this.build(); } }) : null,
+        clipsMode ? el('button', { class: 'btn ghost', title: 'Gleiche Clips, neuer Schnitt', html: icon('dice') + 'Neu mischen', onclick: () => { E.seed++; this.build(); } }) : null,
+        clipsMode ? el('button', { class: 'btn ghost', html: icon('plus') + 'Clips dazu', onclick: () => more.click() }) : null, more,
         title,
-        el('button', { class: 'btn ghost', html: icon('plus') + 'Neues Video', onclick: () => { E.media = []; this.home(); } }),
-        el('button', { class: 'btn primary big', html: icon('download') + 'Als Video speichern', onclick: () => Exporter.quick() })));
+        el('button', { class: 'btn primary huge-bar', html: icon('download') + 'Video speichern', onclick: () => Exporter.quick() })));
   },
 };
 

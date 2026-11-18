@@ -77,7 +77,7 @@ const AI = {
   /* Lokale Stimme (Piper, läuft offline im Browser nach einmaligem Download) */
   _piper: null,
   async localTTS(text, voiceId = 'de_DE-thorsten-medium', onProgress) {
-    if (!this._piper) this._piper = await import('https://esm.sh/@diffusionstudio/vits-web@1.0.3');
+    if (!this._piper) this._piper = await import(LOCAL_LIBS ? '/lib/piper/vits-web.mjs' : 'https://esm.sh/@diffusionstudio/vits-web@1.0.3');
     const wav = await this._piper.predict({ text, voiceId }, p => onProgress && p.total && onProgress(p.loaded / p.total));
     return wav;
   },
@@ -100,8 +100,9 @@ const AI = {
   /* Transkription lokal (Whisper im Browser, einmaliger Modell-Download) */
   _asr: {},
   async transcribeLocal(buf, lang = 'german', model = 'onnx-community/whisper-base', onProgress) {
-    if (!this._T) this._T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0');
+    if (!this._T) this._T = await import(LOCAL_LIBS ? '/lib/transformers/transformers.mjs' : 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0');
     const T = this._T; T.env.allowLocalModels = false;
+    if (LOCAL_LIBS) T.env.backends.onnx.wasm.wasmPaths = '/lib/ort/';
     if (!this._asr[model]) {
       const files = {};
       this._asr[model] = await T.pipeline('automatic-speech-recognition', model, {

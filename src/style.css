@@ -418,3 +418,25 @@ body.simple #toasts { bottom: 170px; }
 .sitem.done::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; font: 700 30px var(--f-head); color: #fff; background: rgba(0,0,0,.35); }
 .es-th.add.net { border-color: rgba(154,166,255,.5); color: var(--ai); width: 110px; text-align: center; }
 .ok-box { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: rgba(61,220,151,.1); border: 1px solid rgba(61,220,151,.35); }
+
+/* ---------- Vereinfachter Start (1.3) ---------- */
+.simple-home { max-width: 760px; gap: 18px; padding-top: 4vh; }
+.simple-home h1 { text-align: center; }
+.home-drop.big { min-height: 300px; border-width: 2.5px; border-radius: 20px; }
+.home-drop.big strong { font-size: 21px; }
+.home-drop.big .hd-ic { width: 72px; height: 72px; } .home-drop.big .hd-ic .ic { width: 32px; height: 32px; }
+.home-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.home-idea { background: var(--bg-1); border: 1px solid var(--line-2); border-radius: 14px; padding: 4px 14px; }
+.home-idea summary { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 0; color: var(--fg-2); list-style: none; }
+.home-idea summary::-webkit-details-marker { display: none; }
+.home-idea summary .ic { color: var(--ai); }
+.home-idea[open] { padding-bottom: 14px; }
+.home-foot { display: flex; justify-content: center; gap: 8px; color: var(--fg-3); font-size: 12px; }
+.linkbtn { background: none; border: 0; padding: 2px; color: var(--fg-3); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
+.linkbtn:hover { color: var(--fg); }
+.chips.big .chip { padding: 7px 14px; font-size: 13px; }
+.eb-l.right { width: auto; margin-left: 10px; }
+.btn.huge-bar { height: 48px; padding: 0 24px; font-size: 16px; border-radius: 12px; margin-left: auto; }
+.btn.huge-bar .ic { width: 20px; height: 20px; }
+body.simple #btnMode, body.simple #btnExport, body.simple #selFormat, body.simple #projName, body.simple #saveState { display: none !important; }
+body.simple .top-mid { margin-left: auto; }

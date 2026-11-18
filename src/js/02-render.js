@@ -416,11 +416,12 @@ const BgRemoval = {
     if (this.seg) return Promise.resolve(this.seg);
     if (this.loading) return this.loading;
     this.loading = (async () => {
-      toast('KI-Freistellung wird geladen (einmalig, ca. 10 MB) …', 'info');
-      const base = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
+      if (!LOCAL_LIBS) toast('KI-Freistellung wird geladen (einmalig, ca. 10 MB) …', 'info');
+      const base = LOCAL_LIBS ? '/lib/mediapipe' : `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
+      const model = LOCAL_LIBS ? '/lib/mediapipe/selfie_segmenter.tflite' : 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite';
       const vision = await import(`${base}/vision_bundle.mjs`);
       const fileset = await vision.FilesetResolver.forVisionTasks(`${base}/wasm`);
-      const opts = (delegate) => ({ baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite', delegate }, runningMode: 'IMAGE', outputConfidenceMasks: true, outputCategoryMask: false });
+      const opts = (delegate) => ({ baseOptions: { modelAssetPath: model, delegate }, runningMode: 'IMAGE', outputConfidenceMasks: true, outputCategoryMask: false });
       try { this.seg = await vision.ImageSegmenter.createFromOptions(fileset, opts('GPU')); }
       catch { this.seg = await vision.ImageSegmenter.createFromOptions(fileset, opts('CPU')); }
       toast('KI-Freistellung bereit.', 'ok');

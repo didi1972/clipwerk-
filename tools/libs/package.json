@@ -1,0 +1,13 @@
+{
+  "name": "clipwerk-libs",
+  "private": true,
+  "description": "Lokale KI-Bibliotheken für die Desktop-Version (werden in build/lib gebündelt)",
+  "dependencies": {
+    "@mediapipe/tasks-vision": "1.1.1",
+    "@shiguredo/rnnoise-wasm": "2025.1.5",
+    "@huggingface/transformers": "4.3.0",
+    "@diffusionstudio/vits-web": "1.0.3",
+    "@diffusionstudio/piper-wasm": "1.0.0",
+    "esbuild": "0.24.2"
+  }
+}
